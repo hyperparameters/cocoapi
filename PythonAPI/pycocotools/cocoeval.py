@@ -419,12 +419,12 @@ class COCOeval:
         toc = time.time()
         print('DONE (t={:0.2f}s).'.format( toc-tic))
 
-    def summarize(self):
+    def summarize(self,display=True):
         '''
         Compute and display summary metrics for evaluation results.
         Note this functin can *only* be applied on the default parameter setting
         '''
-        def _summarize( ap=1, iouThr=None, areaRng='all', maxDets=100 ):
+        def _summarize( ap=1, iouThr=None, areaRng='all', maxDets=100,display=display ):
             p = self.params
             iStr = ' {:<18} {} @[ IoU={:<9} | area={:>6s} | maxDets={:>3d} ] = {:0.3f}'
             titleStr = 'Average Precision' if ap == 1 else 'Average Recall'
@@ -453,35 +453,36 @@ class COCOeval:
                 mean_s = -1
             else:
                 mean_s = np.mean(s[s>-1])
-            print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
+            if display:
+                print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
             return mean_s
-        def _summarizeDets():
+        def _summarizeDets(display=display):
             stats = np.zeros((12,))
-            stats[0] = _summarize(1)
-            stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2])
-            stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2])
-            stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2])
-            stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2])
-            stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2])
-            stats[6] = _summarize(0, maxDets=self.params.maxDets[0])
-            stats[7] = _summarize(0, maxDets=self.params.maxDets[1])
-            stats[8] = _summarize(0, maxDets=self.params.maxDets[2])
-            stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2])
-            stats[10] = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2])
-            stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2])
+            stats[0] = _summarize(1,display=display)
+            stats[1] = _summarize(1, iouThr=.5, maxDets=self.params.maxDets[2],display=display)
+            stats[2] = _summarize(1, iouThr=.75, maxDets=self.params.maxDets[2],display=display)
+            stats[3] = _summarize(1, areaRng='small', maxDets=self.params.maxDets[2],display=display)
+            stats[4] = _summarize(1, areaRng='medium', maxDets=self.params.maxDets[2],display=display)
+            stats[5] = _summarize(1, areaRng='large', maxDets=self.params.maxDets[2],display=display)
+            stats[6] = _summarize(0, maxDets=self.params.maxDets[0],display=display)
+            stats[7] = _summarize(0, maxDets=self.params.maxDets[1],display=display)
+            stats[8] = _summarize(0, maxDets=self.params.maxDets[2],display=display)
+            stats[9] = _summarize(0, areaRng='small', maxDets=self.params.maxDets[2],display=display)
+            stats[10] = _summarize(0, areaRng='medium', maxDets=self.params.maxDets[2],display=display)
+            stats[11] = _summarize(0, areaRng='large', maxDets=self.params.maxDets[2],display=display)
             return stats
-        def _summarizeKps():
+        def _summarizeKps(display=display):
             stats = np.zeros((10,))
-            stats[0] = _summarize(1, maxDets=20)
-            stats[1] = _summarize(1, maxDets=20, iouThr=.5)
-            stats[2] = _summarize(1, maxDets=20, iouThr=.75)
-            stats[3] = _summarize(1, maxDets=20, areaRng='medium')
-            stats[4] = _summarize(1, maxDets=20, areaRng='large')
-            stats[5] = _summarize(0, maxDets=20)
-            stats[6] = _summarize(0, maxDets=20, iouThr=.5)
-            stats[7] = _summarize(0, maxDets=20, iouThr=.75)
-            stats[8] = _summarize(0, maxDets=20, areaRng='medium')
-            stats[9] = _summarize(0, maxDets=20, areaRng='large')
+            stats[0] = _summarize(1, maxDets=20,display=display)
+            stats[1] = _summarize(1, maxDets=20, iouThr=.5,display=display)
+            stats[2] = _summarize(1, maxDets=20, iouThr=.75,display=display)
+            stats[3] = _summarize(1, maxDets=20, areaRng='medium',display=display)
+            stats[4] = _summarize(1, maxDets=20, areaRng='large',display=display)
+            stats[5] = _summarize(0, maxDets=20,display=display)
+            stats[6] = _summarize(0, maxDets=20, iouThr=.5,display=display)
+            stats[7] = _summarize(0, maxDets=20, iouThr=.75,display=display)
+            stats[8] = _summarize(0, maxDets=20, areaRng='medium',display=display)
+            stats[9] = _summarize(0, maxDets=20, areaRng='large',display=display)
             return stats
         if not self.eval:
             raise Exception('Please run accumulate() first')
@@ -490,7 +491,7 @@ class COCOeval:
             summarize = _summarizeDets
         elif iouType == 'keypoints':
             summarize = _summarizeKps
-        self.stats = summarize()
+        self.stats = summarize(display=display)
 
     def __str__(self):
         self.summarize()
