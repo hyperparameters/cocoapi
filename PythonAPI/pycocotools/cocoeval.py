@@ -65,7 +65,7 @@ class COCOeval:
         :return: None
         '''
         if not iouType:
-            _print('iouType not specified. use default iouType segm')
+            self._print('iouType not specified. use default iouType segm')
         self.cocoGt   = cocoGt              # ground truth COCO API
         self.cocoDt   = cocoDt              # detections COCO API
         self.evalImgs = defaultdict(list)   # per-image per-category evaluation results [KxAxI] elements
@@ -128,13 +128,13 @@ class COCOeval:
         :return: None
         '''
         tic = time.time()
-        _print('Running per image evaluation...')
+        self._print('Running per image evaluation...')
         p = self.params
         # add backward compatibility if useSegm is specified in params
         if not p.useSegm is None:
             p.iouType = 'segm' if p.useSegm == 1 else 'bbox'
-            _print('useSegm (deprecated) is not None. Running {} evaluation'.format(p.iouType))
-        _print('Evaluate annotation type *{}*'.format(p.iouType))
+            self._print('useSegm (deprecated) is not None. Running {} evaluation'.format(p.iouType))
+        self._print('Evaluate annotation type *{}*'.format(p.iouType))
         p.imgIds = list(np.unique(p.imgIds))
         if p.useCats:
             p.catIds = list(np.unique(p.catIds))
@@ -162,7 +162,7 @@ class COCOeval:
              ]
         self._paramsEval = copy.deepcopy(self.params)
         toc = time.time()
-        _print('DONE (t={:0.2f}s).'.format(toc-tic))
+        self._print('DONE (t={:0.2f}s).'.format(toc-tic))
 
     def computeIoU(self, imgId, catId):
         p = self.params
@@ -322,10 +322,10 @@ class COCOeval:
         :param p: input params for evaluation
         :return: None
         '''
-        _print('Accumulating evaluation results...')
+        self._print('Accumulating evaluation results...')
         tic = time.time()
         if not self.evalImgs:
-            _print('Please run evaluate() first')
+            self._print('Please run evaluate() first')
         # allows input customized parameters
         if p is None:
             p = self.params
@@ -421,7 +421,7 @@ class COCOeval:
             'scores': scores,
         }
         toc = time.time()
-        _print('DONE (t={:0.2f}s).'.format( toc-tic))
+        self._print('DONE (t={:0.2f}s).'.format( toc-tic))
 
     def summarize(self,display=True):
         '''
@@ -458,7 +458,7 @@ class COCOeval:
             else:
                 mean_s = np.mean(s[s>-1])
             if display:
-                _print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
+                self._print(iStr.format(titleStr, typeStr, iouStr, areaRng, maxDets, mean_s))
             return mean_s
         def _summarizeDets(display=display):
             stats = np.zeros((12,))
